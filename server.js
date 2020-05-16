@@ -1,29 +1,40 @@
-//import { promises as fs } from 'fs';
-var path = require('path');
 var http = require('http');
-var fs = require('fs').promises;
 
+const serverCreation = (usersById) => http.createServer((request, response) => {
+  request.on('end', () => {
+    if (request.url === '/') {
+      const messages = [
+        'Welcome to The Phonebook',
+        `Records count: ${Object.keys(usersById).length}`,
+      ];
+      response.end(messages.join('\n'));
+    } else if (request.url.startsWith('/search')) {
+      // BEGIN (write your solution here)
+        const myURL = new URL(request.url, 'http://localhost:9000');
+        const searcStr = myURL.searchParams.get('q'); 
+        let messages =[];
+        for (let key of Object.keys(usersById)) {
+          if (searcStr !==null) { 
+            let nameToSearch = searcStr.toLowerCase(); 
+            let nameSearchIn = usersById[key].name.toLowerCase();
+            if (nameSearchIn.includes(nameToSearch)) {
+            messages.push(`${usersById[key].name}, ${usersById[key].phone}`);
+          }
+        }
+        
+        }
+        let messStr = messages.join('\n');
+          messStr.trim();
+          console.log(messStr);
+          response.write(messStr);
+        response.end();
 
-  // BEGIN (write your solution here)
-  //const recCount(text) => {
+    
+      // END
+    }
+  });
 
-  //}
-  const runServer = async (port) => {
+  request.resume();
+});
 
-    const phonebook = await fs.readFile('phonebook.txt');
-
-    await http.createServer((request, responce) => {
-   	   //responce.write(toString(arr(phonebook)));
-   	   	phonebookStr = phonebook.toString('utf-8');
-   	   responce.write('Welcome to The Phonebook\nRecords count: ' + (phonebookStr.split('\n').length));
-       responce.end();
-  }).listen(port, () => console.log('Started on port ' + port));
-
-  // END
-};
-
-runServer(7000);
-//server.on('request', (phonebook) => {
-//	responce.write('Welcome to The Phonebook\nRecords count: ' + (phonebook.split('\n').length));
-//	responce.end; /
-//}); 
+module.exports = serverCreation; 
